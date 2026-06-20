@@ -1,102 +1,102 @@
-# Greenhouse Monitor — instalare și configurare
+# Greenhouse Monitor — Installation & Configuration
 
-Pașii de mai jos pornesc de la fișierele din acest pachet, copiate în
-`/home/greenhouse/Desktop/GreenHouse` pe Raspberry Pi. Dacă folosești alt
-director sau alt utilizator, ajustează căile din `deploy/*.service` și din
-`start_greenhouse.sh`.
+The steps below assume the files in this repository have been copied to the
+project directory on your Raspberry Pi (for example `~/GreenHouse`). If you use
+a different directory or user, adjust the paths in `deploy/*.service` and in
+`start_greenhouse.sh` accordingly.
 
-## 1. Dependențe
+## 1. Dependencies
 
 ```bash
-cd /home/greenhouse/Desktop/GreenHouse
+cd ~/GreenHouse
 pip install -r requirements.txt --break-system-packages
 ```
 
-## 2. Baza de date
+## 2. Database
 
-Creează indexul de performanță (tabela există deja la tine; comanda e
-idempotentă, poate fi rulată oricând):
+Create the performance index (if the table already exists, the command is
+idempotent and can be run at any time):
 
 ```bash
-psql -U pi_sebastian -d greenhouse -f schema.sql
+psql -U <db_user> -d greenhouse -f schema.sql
 ```
 
-## 3. Configurare `.env`
+## 3. Configure `.env`
 
 ```bash
 cp .env.example .env
 nano .env
 ```
 
-Completează obligatoriu:
+Required values:
 
-- `DB_PASSWORD` — parola PostgreSQL (cea actuală; ideal, schimb-o pe una nouă)
-- `FLASK_SECRET` — generează cu `python3 -c "import secrets; print(secrets.token_hex(32))"`
-- `GH_PASS_HASH` — generează cu `python3 generate_hash.py` (îți cere parola nouă de dashboard și afișează hash-ul)
+- `DB_PASSWORD` — your PostgreSQL password
+- `FLASK_SECRET` — generate with `python3 -c "import secrets; print(secrets.token_hex(32))"`
+- `GH_PASS_HASH` — generate with `python3 generate_hash.py` (prompts for a new dashboard password and prints the hash)
 
-Important: aplicația **refuză să pornească** fără aceste trei valori — nu mai
-există parole implicite în cod. Adaugă `.env` în `.gitignore` dacă urci
-proiectul pe git.
+> **Important:** the application **refuses to start** without these three values —
+> there are no default passwords in the code. Make sure `.env` is listed in
+> `.gitignore` before pushing the project to a remote.
 
-## 4. Pornire ca servicii systemd (recomandat)
+## 4. Run as systemd services (recommended)
 
 ```bash
-# acces GPIO/SPI fără root pentru utilizatorul greenhouse
-sudo usermod -aG gpio,spi greenhouse
-
+# GPIO/SPI access without root for the service user
+sudo usermod -aG gpio,spi <user>
 sudo cp deploy/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now greenhouse-monitor greenhouse-display greenhouse-web
 ```
 
-Verificare și loguri:
+Status and logs:
 
 ```bash
 systemctl status greenhouse-web
 journalctl -u greenhouse-monitor -f
 ```
 
-Serviciile pornesc automat la boot și repornesc singure în maximum 5 secunde
-dacă un script crapă — argumentul de fiabilitate pentru lucrare.
+The services start automatically at boot and restart on their own within a few
+seconds (max 5 s) if a script crashes.
 
-Pentru teste rapide fără systemd rămâne `./start_greenhouse.sh`.
+For quick tests without systemd, use `./start_greenhouse.sh`.
 
-## 5. Ce s-a schimbat în aplicație
+## 5. Features & Design Notes
 
-**Securitate**
-- credențialele vin exclusiv din `.env`; nicio parolă nu mai apare în cod
-- parola de dashboard e stocată ca hash (werkzeug), nu în clar
-- rate limiting pe `/login`: maxim 8 încercări / 5 minute / IP
-- toate endpoint-urile de date cer autentificare (înainte `/api/timeseries`,
-  `/api/heatmap` și `/api/history` erau publice)
-- intervalul SQL din `timeseries()` e transmis ca parametru (`%s::interval`),
-  nu interpolat în query
+**Security**
 
-**Robustețe**
-- server WSGI real (gunicorn, 1 worker × 4 thread-uri) în loc de serverul de
-  dezvoltare Flask
-- pool de conexiuni PostgreSQL (`ThreadedConnectionPool`) în loc de conexiune
-  nouă la fiecare request
-- index compus `(sensor_type, timestamp DESC)` pe tabela de citiri
-- servicii systemd cu restart automat și loguri în journal
+- credentials are loaded exclusively from `.env`; no passwords are hard-coded
+- the dashboard password is stored as a hash (werkzeug), never in plaintext
+- rate limiting on `/login`: max 8 attempts per 5 minutes per IP
+- all data endpoints require authentication (`/api/timeseries`, `/api/heatmap`,
+  and `/api/history` were previously public)
+- the SQL interval in `timeseries()` is passed as a parameter (`%s::interval`),
+  not interpolated into the query
 
-**Funcționalități noi**
-- detectare senzor offline: dacă media de climă nu s-a mai scris de peste
-  15 minute (configurabil, `CLIMATE_OFFLINE_SEC`), badge-ul „transmisie live"
-  din topbar devine roșu și arată de câte minute lipsesc datele
-- panou „Istoric alerte": evenimentele de foc/gaz din ultimele 90 de zile,
-  reconstruite din tranzițiile 1→0, cu data de start și durata; alertele încă
-  active apar evidențiate „în desfășurare"
-- buton „Descarcă CSV": exportă temperatura și umiditatea din intervalul
-  selectat în grafic (1 zi / 1 lună / 3 luni), util și pentru graficele din
-  lucrare
-- bandă „Afară vs. În seră": vremea locală de la Open-Meteo (fără cheie API,
-  cache 10 minute pe server) lângă valorile curente din seră; coordonatele se
-  setează în `.env` (`WEATHER_LAT`, `WEATHER_LON`)
+**Robustness**
 
-## 6. Notă despre gunicorn și thread-ul de alerte
+- a real WSGI server (gunicorn, 1 worker × 4 threads) instead of the Flask
+  development server
+- a PostgreSQL connection pool (`ThreadedConnectionPool`) instead of opening a
+  new connection on every request
+- a composite index `(sensor_type, timestamp DESC)` on the readings table
+- systemd services with automatic restart and logging to the journal
 
-Thread-ul care verifică alertele (foc/gaz → buzzer + Telegram) pornește la
-importul modulului, o singură dată. De aceea serviciul web rulează cu **un
-singur worker** (`-w 1 --threads 4`); cu mai mulți workeri, alertele s-ar
-trimite duplicat.
+**Features**
+
+- offline sensor detection: if no climate average has been written for more than
+  15 minutes (configurable via `CLIMATE_OFFLINE_SEC`), the "live transmission"
+  badge in the topbar turns red and shows how many minutes of data are missing
+- "Alert history" panel: fire/gas events from the last 90 days, reconstructed
+  from 1→0 transitions, with start time and duration; alerts that are still
+  active are highlighted as "ongoing"
+- "Download CSV" button: exports temperature and humidity for the selected
+  chart range (1 day / 1 month / 3 months)
+- "Outside vs. Inside" band: local weather from Open-Meteo (no API key, cached
+  10 minutes server-side) shown next to the current greenhouse values;
+  coordinates are set in `.env` (`WEATHER_LAT`, `WEATHER_LON`)
+
+## 6. Note on gunicorn and the alert thread
+
+The thread that checks alerts (fire/gas → buzzer + Telegram) starts once, at
+module import. For this reason the web service runs with a **single worker**
+(`-w 1 --threads 4`); with multiple workers, alerts would be sent in duplicate.
