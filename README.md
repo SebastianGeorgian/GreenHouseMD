@@ -1,4 +1,4 @@
-# 🌿 Greenhouse Monitor
+# Greenhouse Monitor System
 
 A complete IoT monitoring system for a greenhouse, built on a **Raspberry Pi 5**.
 Six physical sensors feed a PostgreSQL database in real time; a Flask web
