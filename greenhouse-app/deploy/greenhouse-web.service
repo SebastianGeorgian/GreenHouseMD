@@ -1,0 +1,18 @@
+[Unit]
+Description=Greenhouse — dashboard web (Flask via gunicorn)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+User=greenhouse
+WorkingDirectory=/home/greenhouse/Desktop/GreenHouse
+# Un singur worker (-w 1): thread-ul de alerte trebuie sa ruleze o singura data.
+# Concurenta vine din --threads 4.
+ExecStart=/usr/bin/python3 -m gunicorn -w 1 --threads 4 -b 0.0.0.0:5000 app:app
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

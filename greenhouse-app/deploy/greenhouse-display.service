@@ -1,0 +1,19 @@
+[Unit]
+Description=Greenhouse — display TFT ST7735 (afisare locala)
+After=network-online.target postgresql.service greenhouse-monitor.service
+Wants=network-online.target
+
+[Service]
+User=greenhouse
+# Display-ul foloseste SPI + GPIO:
+#   sudo usermod -aG gpio,spi greenhouse
+SupplementaryGroups=gpio spi
+WorkingDirectory=/home/greenhouse/Desktop/GreenHouse
+ExecStart=/usr/bin/python3 display_monitor.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
