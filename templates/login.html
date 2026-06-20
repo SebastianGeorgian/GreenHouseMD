@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in — Greenhouse Monitor</title>
+  <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+</head>
+<body class="login-page">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/>
+        <path d="M5 19c3-5 7-9 11-11"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="login-card">
+    <div class="login-title">
+      <div class="brand">
+        <svg class="icon"><use href="#i-leaf"/></svg>
+      </div>
+      <div>
+        <h2>Greenhouse Monitor</h2>
+        <p>Your greenhouse, in numbers. Sign in to view the data.</p>
+      </div>
+    </div>
+
+    <form method="post">
+      <label for="username">Username</label>
+      <input id="username" name="username" placeholder="your username"
+             required autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" name="password" placeholder="password"
+             required autocomplete="current-password">
+
+      <button type="submit">Enter dashboard</button>
+    </form>
+
+    {% for m in get_flashed_messages() %}
+      <p class="error">{{ m }}</p>
+    {% endfor %}
+
+    <div class="login-foot">Greenhouse monitoring system · Raspberry Pi 5</div>
+  </div>
+
+</body>
+</html>

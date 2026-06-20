@@ -1,0 +1,20 @@
+# Greenhouse Monitor — Python dependencies
+# Install on Pi:  pip install -r requirements.txt --break-system-packages
+
+# Web
+flask
+gunicorn
+python-dotenv
+werkzeug
+requests
+
+# Data
+psycopg2-binary
+pandas
+
+# Hardware (Raspberry Pi)
+gpiozero
+RPi.GPIO
+adafruit-circuitpython-dht
+adafruit-circuitpython-rgb-display
+pillow

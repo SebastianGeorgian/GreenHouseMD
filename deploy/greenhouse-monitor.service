@@ -1,0 +1,19 @@
+[Unit]
+Description=Greenhouse Sensor Monitor
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/greenhouse
+EnvironmentFile=/home/pi/greenhouse/.env
+ExecStart=/home/pi/greenhouse/venv/bin/python3 /home/pi/greenhouse/greenhouse_monitor.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=greenhouse-monitor
+
+[Install]
+WantedBy=multi-user.target

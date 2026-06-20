@@ -1,0 +1,19 @@
+[Unit]
+Description=Greenhouse TFT Display Monitor
+After=network.target postgresql.service greenhouse-monitor.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/greenhouse
+EnvironmentFile=/home/pi/greenhouse/.env
+ExecStart=/home/pi/greenhouse/venv/bin/python3 /home/pi/greenhouse/display_monitor.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=greenhouse-display
+
+[Install]
+WantedBy=multi-user.target

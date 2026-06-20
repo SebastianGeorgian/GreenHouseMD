@@ -1,0 +1,21 @@
+[Unit]
+Description=Greenhouse Web Dashboard (Flask + gunicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/greenhouse
+EnvironmentFile=/home/pi/greenhouse/.env
+# Single worker is REQUIRED: the alert-checking thread runs once per
+# process. Multiple workers would each spawn it and duplicate alerts.
+ExecStart=/home/pi/greenhouse/venv/bin/gunicorn -w 1 --threads 4 -b 0.0.0.0:5000 app:app
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=greenhouse-web
+
+[Install]
+WantedBy=multi-user.target

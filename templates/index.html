@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Greenhouse Monitor — Monitoring Station</title>
+  <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
+</head>
+<body>
+
+<!-- ── SVG sprite: all icons, drawn inline ── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/>
+      <path d="M5 19c3-5 7-9 11-11"/>
+    </symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.5 16a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 1.6A4 4 0 0 0 7 16.5"/>
+      <path d="M8 19l-1 2M12 18l-1 2M16 19l-1 2"/>
+    </symbol>
+    <symbol id="i-fire" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 21c3.9 0 6.5-2.4 6.5-6 0-4-3.5-6.5-4.5-10-2 1.5-2.8 3.8-2.5 6C10.3 9.7 9 7.8 9 6c-2 1.6-3.5 4.3-3.5 7 0 4.6 2.6 8 6.5 8z"/>
+      <path d="M12 21c-1.7 0-2.8-1.2-2.8-2.8 0-1.7 1.4-2.7 2.8-4.7 1.4 2 2.8 3 2.8 4.7C14.8 19.8 13.7 21 12 21z"/>
+    </symbol>
+    <symbol id="i-gas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 8h9a3 3 0 1 0-2.8-4"/>
+      <path d="M3 12h13a3 3 0 1 1-2.8 4"/>
+      <path d="M3 16h5"/>
+    </symbol>
+    <symbol id="i-soil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20v-7"/>
+      <path d="M12 13c0-3 2.5-5 6-5 0 3.5-2.5 5-6 5z"/>
+      <path d="M12 11c0-2.5-2-4-5-4 0 3 2 4 5 4z"/>
+      <path d="M4 20h16"/>
+    </symbol>
+    <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0z"/>
+      <path d="M12 17v-5"/>
+    </symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11z"/>
+      <path d="M9.5 14a2.5 2.5 0 0 0 2.5 2.5"/>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 13.5A8.5 8.5 0 0 1 10.5 4 7.5 7.5 0 1 0 20 13.5z"/>
+    </symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 10a8 8 0 1 1 2 7"/>
+      <path d="M4 10V5M4 10h5"/>
+    </symbol>
+    <symbol id="i-signal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 19a12 12 0 0 1 14 0"/>
+      <path d="M8 15.5a8 8 0 0 1 8 0"/>
+      <circle cx="12" cy="20" r="0.8" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v11"/>
+      <path d="M7.5 11.5L12 16l4.5-4.5"/>
+      <path d="M5 19.5h14"/>
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 16H6c1.2-1.4 2-2.6 2-6a4 4 0 1 1 8 0c0 3.4.8 4.6 2 6z"/>
+      <path d="M10.5 19a1.7 1.7 0 0 0 3 0"/>
+    </symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.5 18a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 1.6A4 4 0 0 0 7 18.5z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg class="icon"><use href="#i-leaf"/></svg>
+    </div>
+    <div class="topbar-titles">
+      <h1>Green<span>house</span></h1>
+      <div class="topbar-sub">monitoring station · Raspberry Pi 5</div>
+    </div>
+  </div>
+
+  <div class="topbar-status" id="liveStatus" title="Sensor connection status">
+    <div class="status-dot"></div>
+    <span id="liveText">live feed</span>
+  </div>
+
+  <div class="topbar-right">
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon"><use href="#i-moon"/></svg>
+    </button>
+    <a class="btn-ghost" href="/logout">Sign out</a>
+  </div>
+</header>
+
+<section class="container">
+
+  <!-- ── Outside vs. greenhouse weather (Open-Meteo) ── -->
+  <div class="weather-strip" id="weatherStrip" hidden></div>
+
+  <!-- ── Sensor status cards ── -->
+  <section class="cards">
+    <div class="mini-card {{ 'alert' if rain else '' }}" data-sensor="rain">
+      <div class="mini-rail"></div>
+      <div class="mini-icon"><svg class="icon"><use href="#i-rain"/></svg></div>
+      <div class="mini-info">
+        <span class="mini-label">Rain</span>
+        <span class="mini-value">{{ 'Detected' if rain else 'None' }}</span>
+      </div>
+    </div>
+    <div class="mini-card {{ 'alert' if fire else '' }}" data-sensor="fire">
+      <div class="mini-rail"></div>
+      <div class="mini-icon"><svg class="icon"><use href="#i-fire"/></svg></div>
+      <div class="mini-info">
+        <span class="mini-label">Flame</span>
+        <span class="mini-value">{{ 'Detected' if fire else 'None' }}</span>
+      </div>
+    </div>
+    <div class="mini-card {{ 'alert' if gas else '' }}" data-sensor="gas">
+      <div class="mini-rail"></div>
+      <div class="mini-icon"><svg class="icon"><use href="#i-gas"/></svg></div>
+      <div class="mini-info">
+        <span class="mini-label">Gas</span>
+        <span class="mini-value">{{ 'Detected' if gas else 'None' }}</span>
+      </div>
+    </div>
+    <div class="mini-card {{ 'alert' if soil else '' }}" data-sensor="soil">
+      <div class="mini-rail"></div>
+      <div class="mini-icon"><svg class="icon"><use href="#i-soil"/></svg></div>
+      <div class="mini-info">
+        <span class="mini-label">Soil moisture</span>
+        <span class="mini-value">{{ 'Wet' if soil else 'Dry' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Main grid ── -->
+  <section class="grid-2">
+
+    <!-- Temperature + humidity chart -->
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Temperature &amp; Humidity</h2>
+          <div class="panel-subtitle">6-minute aggregated averages</div>
+        </div>
+        <div class="segmented" role="tablist" aria-label="Chart range">
+          <button class="seg-btn active" data-range="day">1 Day</button>
+          <button class="seg-btn" data-range="month">1 Month</button>
+          <button class="seg-btn" data-range="3months">3 Months</button>
+        </div>
+      </div>
+
+      <div class="mini-stats" id="miniStats"></div>
+
+      <div class="chart-wrap">
+        <canvas id="mainChart"></canvas>
+      </div>
+
+      <div class="panel-foot">
+        <button class="btn" id="btnExport" title="Download the current interval's data as CSV">
+          <svg class="icon icon-sm"><use href="#i-download"/></svg>
+          Download CSV
+        </button>
+        <button class="btn" id="btnResetZoom">
+          <svg class="icon icon-sm"><use href="#i-reset"/></svg>
+          Reset zoom
+        </button>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Heat map</h2>
+          <div class="panel-subtitle" id="hmLegend"></div>
+        </div>
+      </div>
+
+      <div class="heatmap-controls">
+        <select id="hmMetric">
+          <option value="temperature_avg_6min" selected>Temperature</option>
+          <option value="humidity_avg_6min">Humidity</option>
+        </select>
+        <select id="hmMode">
+          <option value="daygrid" selected>24 hours</option>
+          <option value="monthgrid">Monthly</option>
+        </select>
+        <input type="date" id="hmDate">
+        <input type="month" id="hmMonth">
+      </div>
+
+      <div id="heatmap" class="heatmap"></div>
+    </div>
+
+  </section>
+
+  <!-- ── Section divider ── -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <span class="section-divider-label">
+      <svg class="icon icon-sm"><use href="#i-signal"/></svg>
+      Recorded events
+    </span>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- ── Events: rain & soil ── -->
+  <section class="section-events">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Precipitation</h2>
+          <div class="panel-subtitle">intervals during which it rained</div>
+        </div>
+      </div>
+      <div class="events-controls">
+        <input type="date" id="rainDate">
+        <select id="rainRange">
+          <option value="day">Today</option>
+          <option value="week">Last 7 days</option>
+          <option value="month">Last 30 days</option>
+        </select>
+      </div>
+      <div class="event-summary" id="rainSummary"></div>
+      <div class="events-chart-wrap">
+        <canvas id="rainChart"></canvas>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Soil moisture</h2>
+          <div class="panel-subtitle">intervals during which the soil was wet</div>
+        </div>
+      </div>
+      <div class="events-controls">
+        <input type="date" id="soilDate">
+        <select id="soilRange">
+          <option value="day">Today</option>
+          <option value="week">Last 7 days</option>
+          <option value="month">Last 30 days</option>
+        </select>
+      </div>
+      <div class="event-summary" id="soilSummary"></div>
+      <div class="events-chart-wrap">
+        <canvas id="soilChart"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── Alert history ── -->
+  <div class="panel panel-alerts">
+    <div class="panel-head">
+      <div>
+        <h2>Alert history</h2>
+        <div class="panel-subtitle">fire &amp; gas events from the last 90 days</div>
+      </div>
+      <span class="alerts-badge">
+        <svg class="icon icon-sm"><use href="#i-bell"/></svg>
+        last 10
+      </span>
+    </div>
+    <div id="alertsList" class="alerts-list">
+      <div class="alerts-empty">Loading…</div>
+    </div>
+  </div>
+
+  <footer class="page-foot">
+    Greenhouse monitoring system · open-source IoT project · data refreshes automatically
+  </footer>
+
+</section>
+
+<script>
+  const INIT = {
+    labels: {{ init_labels|tojson }},
+    temp:   {{ init_temp|tojson }},
+    hum:    {{ init_hum|tojson }},
+    range:  {{ init_range|tojson }},
+    heatmap:{{ init_heatmap|tojson }}
+  };
+</script>
+<script src="{{ url_for('static',filename='dashboard.js') }}"></script>
+</body>
+</html>
