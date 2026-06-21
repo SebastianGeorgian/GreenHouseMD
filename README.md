@@ -42,9 +42,9 @@ scratch, including a fair amount of hardware debugging along the way.
 *(Add your own screenshots to a `screenshots/` folder and update the paths
 below — `dashboard.png`, `login.png`, `display.jpg`)*
 
-| Dashboard | Login |
-|---|---|
-| ![Dashboard](screenshots/dashboard.png) | ![Login](screenshots/login.png) |
+| Dashboard | Login | DisplayTFT |
+|---|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Login](screenshots/login.png) | ![DisplayTFT](screenshots/display.png)| 
 
 ---
 
