@@ -55,20 +55,20 @@ communicating exclusively through the PostgreSQL database:
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│                   Raspberry Pi 5                       │
-│                                                        │
-│  Sensors (GPIO)                                       │
-│       │                                               │
-│       ▼                                               │
-│  greenhouse_monitor.py ───────────────►  PostgreSQL    │
-│                                              │         │
-│  display_monitor.py    ◄────────────────────┤         │
-│                                              │         │
-│  app.py (Flask + gunicorn) ◄─────────────────┘         │
-│       │                                               │
-│       ▼                                               │
+│                   Raspberry Pi 5                     │
+│                                                      │
+│  Sensors (GPIO)                                      │
+│       │                                              │
+│       ▼                                              │
+│  greenhouse_monitor.py ───────────────►  PostgreSQL  │
+│                                              │       │
+│  display_monitor.py    ◄─────────────────────┤       │
+│                                              │       │
+│  app.py (Flask + gunicorn) ◄─────────────────        │
+│       │                                              │
+│       ▼                                              │
 │  Web browser (any device on the LAN)                 │
-│  TFT display (local, on the Pi itself)                │
+│  TFT display (local, on the Pi itself)               │
 └──────────────────────────────────────────────────────┘
 ```
 
