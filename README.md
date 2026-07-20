@@ -41,7 +41,7 @@ scratch, including a fair amount of hardware debugging along the way.
 
 | Dashboard | Login | DisplayTFT |
 |---|---|---|
-| ![Dashboard](screenshots/dashboard.png) | ![Login](screenshots/login.png) | ![DisplayTFT](screenshots/display.png)| 
+| ![Dashboard](screenshots/dashboard.png) | ![DisplayTFT](screenshots/display.png)| 
 
 ---
 
