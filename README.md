@@ -40,7 +40,7 @@ scratch, including a fair amount of hardware debugging along the way.
 ## Screenshots
 
 | Dashboard | DisplayTFT |
-|---|---|
+|------|---|
 | ![Dashboard](screenshots/dashboard.png) | ![DisplayTFT](screenshots/display.png)| 
 
 ---
