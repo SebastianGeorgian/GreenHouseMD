@@ -43,7 +43,6 @@ scratch, including a fair amount of hardware debugging along the way.
 |---------|
 | ![Dashboard](screenshots/dashboard.png) |
 |DisplayTFT |
-|---------|
 |![DisplayTFT](screenshots/display.png)| 
 ---
 
