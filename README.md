@@ -39,10 +39,12 @@ scratch, including a fair amount of hardware debugging along the way.
 
 ## Screenshots
 
-| Dashboard | DisplayTFT |
+| Dashboard |
 |------|---|
-| ![Dashboard](screenshots/dashboard.png) | ![DisplayTFT](screenshots/display.png)| 
-
+| ![Dashboard](screenshots/dashboard.png) |
+|DisplayTFT |
+|------|---|
+|![DisplayTFT](screenshots/display.png)| 
 ---
 
 ## Architecture
