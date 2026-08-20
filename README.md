@@ -39,6 +39,7 @@ scratch, including a fair amount of hardware debugging along the way.
 
 ## Screenshots
 | Login |
+|---------|
 | ![Login](screenshots/login.png) |
 |---------|
 | Dashboard |
