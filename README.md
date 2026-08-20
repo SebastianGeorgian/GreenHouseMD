@@ -38,11 +38,13 @@ scratch, including a fair amount of hardware debugging along the way.
 ---
 
 ## Screenshots
-
-| Dashboard |
+| Login |
+| ![Login](screenshots/login.png) |
 |---------|
+| Dashboard |
 | ![Dashboard](screenshots/dashboard.png) |
-|DisplayTFT |
+| ![Dashboard](screenshots/dashboard2.png) |
+| DisplayTFT |
 |![DisplayTFT](screenshots/display.png)| 
 ---
 
