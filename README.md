@@ -37,15 +37,16 @@ scratch, including a fair amount of hardware debugging along the way.
 
 ---
 
-## Screenshots
-| Login |
-|---------|
-| ![Login](screenshots/login.png) |
+## Screenshots 
+
 | Dashboard |
+|---------|
 | ![Dashboard](screenshots/dashboard.png) |
 | ![Dashboard](screenshots/dashboard2.png) |
+---
 | DisplayTFT |
-|![DisplayTFT](screenshots/display.png)| 
+|------|
+| ![DisplayTFT](screenshots/display.png) | 
 ---
 
 ## Architecture
