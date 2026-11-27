@@ -46,7 +46,7 @@ scratch, including a fair amount of hardware debugging along the way.
 ---
 | DisplayTFT |
 |------|
-| ![DisplayTFT](screenshots/display.png) | 
+| ![DisplayTFT](screenshots/display.webp) | 
 ---
 
 ## Architecture
